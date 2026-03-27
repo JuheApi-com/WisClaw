@@ -1,4 +1,5 @@
 export const PROVIDER_TYPES = [
+  'wisgate',
   'anthropic',
   'openai',
   'google',
@@ -25,6 +26,7 @@ export const BUILTIN_PROVIDER_TYPES = [
   'minimax-portal-cn',
   'modelstudio',
   'ollama',
+  'wisgate'
 ] as const;
 
 export type ProviderType = (typeof PROVIDER_TYPES)[number];

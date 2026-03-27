@@ -7,6 +7,26 @@ import type {
 
 export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
   {
+    id: 'wisgate',
+    name: 'Wisgate',
+    icon: '🚪',
+    placeholder: 'Not required',
+    requiresApiKey: true,
+    defaultBaseUrl: 'https://api.wisgate.ai/v1',
+    showModelId: true,
+    modelIdPlaceholder: 'claude-sonnet-4-6',
+    defaultModelId: 'claude-sonnet-4-6',
+    category: 'compatible',
+    supportedAuthModes: ['api_key'],
+    defaultAuthMode: 'api_key',
+    supportsMultipleAccounts: true,
+    providerConfig: {
+      baseUrl: 'https://api.wisgate.ai/v1',
+      api: 'anthropic-messages',
+      apiKeyEnv: 'WISGATE_API_KEY',
+    },
+  },
+  {
     id: 'anthropic',
     name: 'Anthropic',
     icon: '🤖',
@@ -144,29 +164,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
       ],
     },
   },
-  {
-    id: 'siliconflow',
-    name: 'SiliconFlow (CN)',
-    icon: '🌊',
-    placeholder: 'sk-...',
-    model: 'Multi-Model',
-    requiresApiKey: true,
-    defaultBaseUrl: 'https://api.siliconflow.cn/v1',
-    showModelId: true,
-    showModelIdInDevModeOnly: true,
-    modelIdPlaceholder: 'deepseek-ai/DeepSeek-V3',
-    defaultModelId: 'deepseek-ai/DeepSeek-V3',
-    category: 'compatible',
-    envVar: 'SILICONFLOW_API_KEY',
-    supportedAuthModes: ['api_key'],
-    defaultAuthMode: 'api_key',
-    supportsMultipleAccounts: true,
-    providerConfig: {
-      baseUrl: 'https://api.siliconflow.cn/v1',
-      api: 'openai-completions',
-      apiKeyEnv: 'SILICONFLOW_API_KEY',
-    },
-  },
+
   {
     id: 'minimax-portal',
     name: 'MiniMax (Global)',
