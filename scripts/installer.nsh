@@ -17,7 +17,7 @@
   ; Make stage logs visible on assisted installers (defaults to hidden).
   SetDetailsPrint both
   DetailPrint "Preparing installation..."
-  DetailPrint "Extracting ClawX runtime files. This can take a few minutes on slower disks or while antivirus scanning is active."
+  DetailPrint "Extracting WisClaw runtime files. This can take a few minutes on slower disks or while antivirus scanning is active."
 
   ${nsProcess::FindProcess} "${APP_EXECUTABLE_FILENAME}" $R0
 
@@ -285,11 +285,11 @@
 
   ; Ask user if they want to remove AppData (preserves .openclaw)
   MessageBox MB_YESNO|MB_ICONQUESTION \
-    "Do you want to remove ClawX application data?$\r$\n$\r$\nThis will delete:$\r$\n  • AppData\Local\clawx (local app data)$\r$\n  • AppData\Roaming\clawx (roaming app data)$\r$\n$\r$\nYour .openclaw folder (configuration & skills) will be preserved.$\r$\nSelect 'No' to keep all data for future reinstallation." \
+    "Do you want to remove WisClaw application data?$\r$\n$\r$\nThis will delete:$\r$\n  • AppData\Local\wisclaw (local app data)$\r$\n  • AppData\Roaming\wisclaw (roaming app data)$\r$\n$\r$\nYour .openclaw folder (configuration & skills) will be preserved.$\r$\nSelect 'No' to keep all data for future reinstallation." \
     /SD IDNO IDYES _cu_removeData IDNO _cu_skipRemove
 
   _cu_removeData:
-    ; Kill any lingering ClawX processes (and their child process trees) to
+    ; Kill any lingering WisClaw processes (and their child process trees) to
     ; release file locks on electron-store JSON files, Gateway sockets, etc.
     ${nsProcess::FindProcess} "${APP_EXECUTABLE_FILENAME}" $R0
     ${if} $R0 == 0
@@ -304,37 +304,37 @@
 
     ; --- Always remove current user's AppData first ---
     ; NOTE: .openclaw directory is intentionally preserved (user configuration & skills)
-    RMDir /r "$LOCALAPPDATA\clawx"
-    RMDir /r "$APPDATA\clawx"
+    RMDir /r "$LOCALAPPDATA\wisclaw"
+    RMDir /r "$APPDATA\wisclaw"
 
     ; --- Retry: if directories still exist (locked files), wait and try again ---
 
-    ; Check AppData\Local\clawx
-    IfFileExists "$LOCALAPPDATA\clawx\*.*" 0 _cu_localDone
+    ; Check AppData\Local\wisclaw
+    IfFileExists "$LOCALAPPDATA\wisclaw\*.*" 0 _cu_localDone
       Sleep 3000
-      RMDir /r "$LOCALAPPDATA\clawx"
-      IfFileExists "$LOCALAPPDATA\clawx\*.*" 0 _cu_localDone
-        nsExec::ExecToStack 'cmd.exe /c rd /s /q "$LOCALAPPDATA\clawx"'
+      RMDir /r "$LOCALAPPDATA\wisclaw"
+      IfFileExists "$LOCALAPPDATA\wisclaw\*.*" 0 _cu_localDone
+        nsExec::ExecToStack 'cmd.exe /c rd /s /q "$LOCALAPPDATA\wisclaw"'
         Pop $0
         Pop $1
     _cu_localDone:
 
-    ; Check AppData\Roaming\clawx
-    IfFileExists "$APPDATA\clawx\*.*" 0 _cu_roamingDone
+    ; Check AppData\Roaming\wisclaw
+    IfFileExists "$APPDATA\wisclaw\*.*" 0 _cu_roamingDone
       Sleep 3000
-      RMDir /r "$APPDATA\clawx"
-      IfFileExists "$APPDATA\clawx\*.*" 0 _cu_roamingDone
-        nsExec::ExecToStack 'cmd.exe /c rd /s /q "$APPDATA\clawx"'
+      RMDir /r "$APPDATA\wisclaw"
+      IfFileExists "$APPDATA\wisclaw\*.*" 0 _cu_roamingDone
+        nsExec::ExecToStack 'cmd.exe /c rd /s /q "$APPDATA\wisclaw"'
         Pop $0
         Pop $1
     _cu_roamingDone:
 
     ; --- Final check: warn user if any directories could not be removed ---
     StrCpy $R3 ""
-    IfFileExists "$LOCALAPPDATA\clawx\*.*" 0 +2
-      StrCpy $R3 "$R3$\r$\n  • $LOCALAPPDATA\clawx"
-    IfFileExists "$APPDATA\clawx\*.*" 0 +2
-      StrCpy $R3 "$R3$\r$\n  • $APPDATA\clawx"
+    IfFileExists "$LOCALAPPDATA\wisclaw\*.*" 0 +2
+      StrCpy $R3 "$R3$\r$\n  • $LOCALAPPDATA\wisclaw"
+    IfFileExists "$APPDATA\wisclaw\*.*" 0 +2
+      StrCpy $R3 "$R3$\r$\n  • $APPDATA\wisclaw"
     StrCmp $R3 "" _cu_cleanupOk
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Some data directories could not be removed (files may be in use):$\r$\n$R3$\r$\n$\r$\nPlease delete them manually after restarting your computer."
@@ -355,8 +355,8 @@
     StrCmp $R3 $PROFILE _cu_enumNext
 
     ; NOTE: .openclaw directory is intentionally preserved for all users
-    RMDir /r "$R3\AppData\Local\clawx"
-    RMDir /r "$R3\AppData\Roaming\clawx"
+    RMDir /r "$R3\AppData\Local\wisclaw"
+    RMDir /r "$R3\AppData\Roaming\wisclaw"
 
   _cu_enumNext:
     IntOp $R0 $R0 + 1

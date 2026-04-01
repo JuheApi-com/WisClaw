@@ -11,8 +11,8 @@ import { homedir } from 'os';
 import { logger } from './logger';
 import { getResourcesDir } from './paths';
 
-const CLAWX_BEGIN = '<!-- clawx:begin -->';
-const CLAWX_END = '<!-- clawx:end -->';
+const CLAWX_BEGIN = '<!-- wisclaw:begin -->';
+const CLAWX_END = '<!-- wisclaw:end -->';
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -151,7 +151,7 @@ async function mergeClawXContextOnce(): Promise<number> {
 
   let files: string[];
   try {
-    files = (await readdir(contextDir)).filter((f) => f.endsWith('.clawx.md'));
+    files = (await readdir(contextDir)).filter((f) => f.endsWith('.wisclaw.md'));
   } catch {
     return 0;
   }
@@ -163,7 +163,7 @@ async function mergeClawXContextOnce(): Promise<number> {
     await ensureDir(workspaceDir);
 
     for (const file of files) {
-      const targetName = file.replace('.clawx.md', '.md');
+      const targetName = file.replace('.wisclaw.md', '.md');
       const targetPath = join(workspaceDir, targetName);
 
       if (!(await fileExists(targetPath))) {

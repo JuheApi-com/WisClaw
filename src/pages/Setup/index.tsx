@@ -326,7 +326,7 @@ function WelcomeContent() {
   return (
     <div data-testid="setup-welcome-step" className="text-center space-y-4">
       <div className="mb-4 flex justify-center">
-        <img src={clawxIcon} alt="ClawX" className="h-16 w-16" />
+        <img src={clawxIcon} alt="WisClaw" className="h-16 w-16" />
       </div>
       <h2 className="text-xl font-semibold">{t('welcome.title')}</h2>
       <p className="text-muted-foreground">
@@ -1362,6 +1362,40 @@ function ProviderContent({
                 autoComplete="off"
                 className="bg-background border-input"
               />
+              {selectedProvider === 'wisgate' && (
+                <div className="flex gap-2 text-[13px] mt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModelId('claude-sonnet-4-6');
+                      onConfiguredChange(false);
+                    }}
+                    className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", (modelId || selectedProviderData?.defaultModelId) === 'claude-sonnet-4-6' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                  >
+                    claude-sonnet-4-6
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModelId('MiniMax-M2.5');
+                      onConfiguredChange(false);
+                    }}
+                    className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'MiniMax-M2.5' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                  >
+                    MiniMax-M2.5
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModelId('minimax-m2.5:free');
+                      onConfiguredChange(false);
+                    }}
+                    className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'minimax-m2.5:free' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                  >
+                    MiniMax-M2.5:free (PRO)
+                  </button>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
                 {t('provider.modelIdDesc')}
               </p>
