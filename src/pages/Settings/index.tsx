@@ -1077,7 +1077,7 @@ export function Settings() {
           <Separator className="bg-black/5 dark:bg-white/5" />
 
           {/* About */}
-          <div>
+          {/* <div>
             <h2 className="text-3xl font-serif text-foreground mb-6 font-normal tracking-tight" style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", Times, serif' }}>
               {t('about.title')}
             </h2>
@@ -1111,7 +1111,7 @@ export function Settings() {
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
 
         </div>
       </div>
