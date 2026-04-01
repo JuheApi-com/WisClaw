@@ -229,7 +229,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2 px-2 overflow-hidden">
             <img src={logoSvg} alt="ClawX" className="h-5 w-auto shrink-0" />
             <span className="text-sm font-semibold truncate whitespace-nowrap text-foreground/90">
-              ClawX
+              WisClaw
             </span>
           </div>
         )}
@@ -337,17 +337,17 @@ export function Sidebar() {
       {/* Footer */}
       <div className="p-2 mt-auto">
         <NavLink
-            to="/settings"
-            data-testid="sidebar-nav-settings"
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors',
-                'hover:bg-black/5 dark:hover:bg-white/5 text-foreground/80',
-                isActive && 'bg-black/5 dark:bg-white/10 text-foreground',
-                sidebarCollapsed ? 'justify-center px-0' : ''
-              )
-            }
-          >
+          to="/settings"
+          data-testid="sidebar-nav-settings"
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors',
+              'hover:bg-black/5 dark:hover:bg-white/5 text-foreground/80',
+              isActive && 'bg-black/5 dark:bg-white/10 text-foreground',
+              sidebarCollapsed ? 'justify-center px-0' : ''
+            )
+          }
+        >
           {({ isActive }) => (
             <>
               <div className={cn("flex shrink-0 items-center justify-center", isActive ? "text-foreground" : "text-muted-foreground")}>
