@@ -628,7 +628,7 @@ export function Settings() {
               </div>
 
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-[15px] font-medium text-foreground">{t('advanced.devMode')}</Label>
                   <p className="text-[13px] text-muted-foreground mt-1">
@@ -640,9 +640,9 @@ export function Settings() {
                   onCheckedChange={setDevModeUnlocked}
                   data-testid="settings-dev-mode-switch"
                 />
-              </div>
+              </div> */}
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-[15px] font-medium text-foreground">{t('advanced.telemetry')}</Label>
                   <p className="text-[13px] text-muted-foreground mt-1">
@@ -653,7 +653,7 @@ export function Settings() {
                   checked={telemetryEnabled}
                   onCheckedChange={setTelemetryEnabled}
                 />
-              </div>
+              </div> */}
 
             </div>
           </div>

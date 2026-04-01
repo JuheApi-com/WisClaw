@@ -47,7 +47,7 @@ function isIgnorablePostHogShutdownError(error: unknown): boolean {
 export async function initTelemetry(): Promise<void> {
     try {
         const telemetryEnabled = await getSetting('telemetryEnabled');
-        if (!telemetryEnabled) {
+        if (true || !telemetryEnabled) {
             logger.info('Telemetry is disabled in settings');
             return;
         }
