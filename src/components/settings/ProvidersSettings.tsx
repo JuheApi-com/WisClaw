@@ -570,11 +570,11 @@ function ProviderCard({
         {!isEditing && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             {!isDefault && (
-            <Button
-              data-testid={`provider-set-default-${account.id}`}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:text-blue-600 hover:bg-white dark:hover:bg-card shadow-sm"
+              <Button
+                data-testid={`provider-set-default-${account.id}`}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:text-blue-600 hover:bg-white dark:hover:bg-card shadow-sm"
                 onClick={onSetDefault}
                 title={t('aiProviders.card.setDefault')}
               >
@@ -643,6 +643,31 @@ function ProviderCard({
                     placeholder={typeInfo?.modelIdPlaceholder || 'provider/model-id'}
                     className={currentInputClasses}
                   />
+                  {account.vendorId === 'wisgate' && (
+                    <div className="flex gap-2 text-[13px] mt-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setModelId('claude-sonnet-4-6')}
+                        className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", (modelId || typeInfo?.defaultModelId) === 'claude-sonnet-4-6' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                      >
+                        claude-sonnet-4-6
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setModelId('MiniMax-M2.5')}
+                        className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'MiniMax-M2.5' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                      >
+                        MiniMax-M2.5
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setModelId('minimax-m2.5:free')}
+                        className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'minimax-m2.5:free' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                      >
+                        MiniMax-M2.5:free (PRO)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
               {account.vendorId === 'ark' && codePlanPreset && (
@@ -1271,17 +1296,17 @@ function AddProviderDialog({
                 <div>
                   <p className="font-semibold text-[15px]">{typeInfo?.id === 'custom' ? t('aiProviders.custom') : typeInfo?.name}</p>
                   <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setValidationError(null);
-                    setBaseUrl('');
-                    setModelId('');
-                    setUserAgent('');
-                    setShowAdvancedConfig(false);
-                    setArkMode('apikey');
-                  }}
-                  className="text-[13px] text-blue-500 hover:text-blue-600 font-medium"
-                >
+                    onClick={() => {
+                      setSelectedType(null);
+                      setValidationError(null);
+                      setBaseUrl('');
+                      setModelId('');
+                      setUserAgent('');
+                      setShowAdvancedConfig(false);
+                      setArkMode('apikey');
+                    }}
+                    className="text-[13px] text-blue-500 hover:text-blue-600 font-medium"
+                  >
                     {t('aiProviders.dialog.change')}
                   </button>
                   {effectiveDocsUrl && (
@@ -1413,6 +1438,34 @@ function AddProviderDialog({
                       }}
                       className={inputClasses}
                     />
+                    {selectedType === 'wisgate' && (
+                      <div className="flex gap-2 text-[13px] mt-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setModelId('claude-sonnet-4-6')}
+                          className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", (modelId || typeInfo?.defaultModelId) === 'claude-sonnet-4-6' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                        >
+                          claude-sonnet-4-6
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setModelId('MiniMax-M2.5')}
+                          className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'MiniMax-M2.5' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                        >
+                          MiniMax-M2.5
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setModelId('minimax-m2.5:free');
+                            setValidationError(null);
+                          }}
+                          className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", modelId === 'minimax-m2.5:free' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium text-foreground" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                        >
+                          Minimax-M2.5:free (PRO)
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
                 {selectedType === 'ark' && codePlanPreset && (
@@ -1468,27 +1521,27 @@ function AddProviderDialog({
                   </div>
                 )}
                 {selectedType === 'custom' && (
-                <div className="space-y-2.5">
-                  <Label className={labelClasses}>{t('aiProviders.dialog.protocol', 'Protocol')}</Label>
-                  <div className="flex gap-2 text-[13px]">
-                    <button
-                      type="button"
+                  <div className="space-y-2.5">
+                    <Label className={labelClasses}>{t('aiProviders.dialog.protocol', 'Protocol')}</Label>
+                    <div className="flex gap-2 text-[13px]">
+                      <button
+                        type="button"
                         onClick={() => setApiProtocol('openai-completions')}
                         className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", apiProtocol === 'openai-completions' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
-                    >
-                      {t('aiProviders.protocols.openaiCompletions', 'OpenAI Completions')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setApiProtocol('openai-responses')}
-                      className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", apiProtocol === 'openai-responses' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
-                    >
-                      {t('aiProviders.protocols.openaiResponses', 'OpenAI Responses')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setApiProtocol('anthropic-messages')}
-                      className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", apiProtocol === 'anthropic-messages' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                      >
+                        {t('aiProviders.protocols.openaiCompletions', 'OpenAI Completions')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setApiProtocol('openai-responses')}
+                        className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", apiProtocol === 'openai-responses' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
+                      >
+                        {t('aiProviders.protocols.openaiResponses', 'OpenAI Responses')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setApiProtocol('anthropic-messages')}
+                        className={cn("flex-1 py-1.5 px-3 rounded-lg border transition-colors", apiProtocol === 'anthropic-messages' ? "bg-white dark:bg-card border-black/20 dark:border-white/20 shadow-sm font-medium" : "border-transparent bg-black/5 dark:bg-white/5 text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10")}
                       >
                         {t('aiProviders.protocols.anthropic', 'Anthropic')}
                       </button>

@@ -57,7 +57,7 @@ export function createTray(mainWindow: BrowserWindow): Tray {
   tray = new Tray(icon);
 
   // Set tooltip
-  tray.setToolTip('ClawX - AI Assistant');
+  tray.setToolTip('WisClaw - AI Assistant');
 
   const showWindow = () => {
     if (mainWindow.isDestroyed()) return;
@@ -157,7 +157,7 @@ export function createTray(mainWindow: BrowserWindow): Tray {
  */
 export function updateTrayStatus(status: string): void {
   if (tray) {
-    tray.setToolTip(`ClawX - ${status}`);
+    tray.setToolTip(`WisClaw - ${status}`);
   }
 }
 

@@ -137,8 +137,10 @@ export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
     name: 'WisGate',
     icon: '🚪',
     placeholder: 'sk-...',
-    model: 'Claude',
+    model: 'Claude & Others',
     requiresApiKey: true,
+    showModelId: true,
+    defaultModelId: 'claude-sonnet-4-6',
     docsUrl: 'https://wisdom-docs.juheapi.com',
   },
   {
