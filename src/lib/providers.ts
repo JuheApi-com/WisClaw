@@ -134,7 +134,7 @@ import { providerIcons } from '@/assets/providers';
 export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
   {
     id: 'wisgate',
-    name: 'Wisgate',
+    name: 'WisGate',
     icon: '🚪',
     placeholder: 'sk-...',
     model: 'Claude',
