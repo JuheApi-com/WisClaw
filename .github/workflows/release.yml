@@ -86,11 +86,8 @@ jobs:
         if: matrix.platform == 'mac'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_LINK: ${{ secrets.MAC_CERTS }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Code signing is disabled — no certificates required
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
           ulimit -n 65536
           echo "File descriptor limit: $(ulimit -n)"
@@ -522,6 +519,158 @@ jobs:
           echo "All files uploaded and verified successfully!"
 
   # ──────────────────────────────────────────────────────────────
+  # Job: Upload to Cloudflare R2
+  # Uploads all release artifacts to R2 (S3-compatible) for:
+  #   - Official website downloads (via release-info.json)
+  #   - electron-updater auto-update (via {channel}-*.yml)
+  #
+  # Required secrets:
+  #   R2_ACCESS_KEY_ID      — R2 API token with Object Write permission
+  #   R2_SECRET_ACCESS_KEY  — R2 API token secret
+  #   R2_ENDPOINT           — e.g. https://<account-id>.r2.cloudflarestorage.com
+  #   R2_BUCKET             — Bucket name, e.g. wisclaw-releases
+  # ──────────────────────────────────────────────────────────────
+  upload-r2:
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release artifacts only
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          pattern: release-*
+
+      - name: Extract version and channel
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+
+          if [[ "$VERSION" =~ -([a-zA-Z]+) ]]; then
+            CHANNEL="${BASH_REMATCH[1]}"
+          else
+            CHANNEL="latest"
+          fi
+
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "channel=${CHANNEL}" >> $GITHUB_OUTPUT
+          echo "Detected version: ${VERSION}, channel: ${CHANNEL}"
+
+      - name: Prepare upload directories
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          CHANNEL="${{ steps.version.outputs.channel }}"
+
+          mkdir -p staging/${CHANNEL}
+          mkdir -p staging/releases/${TAG}
+
+          find release-artifacts/ -type f | while read file; do
+            filename=$(basename "$file")
+            cp "$file" "staging/${CHANNEL}/${filename}"
+            cp "$file" "staging/releases/${TAG}/${filename}"
+          done
+
+          echo "=== staging/${CHANNEL}/ ==="
+          ls -lh staging/${CHANNEL}/
+          echo ""
+          echo "=== staging/releases/${TAG}/ ==="
+          ls -lh staging/releases/${TAG}/
+
+      - name: Generate release-info.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          CHANNEL="${{ steps.version.outputs.channel }}"
+          BASE_URL="${{ secrets.R2_PUBLIC_BASE_URL }}/WisClaw/${CHANNEL}"
+
+          jq -n \
+            --arg version "$VERSION" \
+            --arg channel "$CHANNEL" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg base "$BASE_URL" \
+            --arg changelog "https://github.com/${{ github.repository }}/releases/tag/v${VERSION}" \
+            '{
+              version: $version,
+              channel: $channel,
+              releaseDate: $date,
+              downloads: {
+                mac: {
+                  x64: ($base + "/WisClaw-" + $version + "-mac-x64.dmg"),
+                  arm64: ($base + "/WisClaw-" + $version + "-mac-arm64.dmg")
+                },
+                win: {
+                  x64: ($base + "/WisClaw-" + $version + "-win-x64.exe"),
+                  arm64: ($base + "/WisClaw-" + $version + "-win-arm64.exe")
+                },
+                linux: {
+                  deb_amd64: ($base + "/WisClaw-" + $version + "-linux-amd64.deb"),
+                  deb_arm64: ($base + "/WisClaw-" + $version + "-linux-arm64.deb"),
+                  appimage_x64: ($base + "/WisClaw-" + $version + "-linux-x86_64.AppImage"),
+                  appimage_arm64: ($base + "/WisClaw-" + $version + "-linux-arm64.AppImage"),
+                  rpm_x64: ($base + "/WisClaw-" + $version + "-linux-x86_64.rpm")
+                }
+              },
+              changelog: $changelog
+            }' > staging/${CHANNEL}/release-info.json
+
+          echo "=== release-info.json ==="
+          cat staging/${CHANNEL}/release-info.json
+
+      - name: Install AWS CLI
+        run: |
+          pip install awscli --quiet
+
+      - name: "Upload to R2: {channel}/ (overwrite)"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          CHANNEL="${{ steps.version.outputs.channel }}"
+
+          echo "Uploading to R2: WisClaw/${CHANNEL}/..."
+          aws s3 sync "staging/${CHANNEL}/" "s3://${R2_BUCKET}/WisClaw/${CHANNEL}/" \
+            --endpoint-url "${R2_ENDPOINT}" \
+            --no-progress
+          echo "Uploaded channel files to R2."
+
+      - name: "Upload to R2: WisClaw/releases/vX.Y.Z/ (archive)"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+
+          echo "Uploading to R2: WisClaw/releases/${TAG}/..."
+          aws s3 sync "staging/releases/${TAG}/" "s3://${R2_BUCKET}/WisClaw/releases/${TAG}/" \
+            --endpoint-url "${R2_ENDPOINT}" \
+            --no-progress
+          echo "Uploaded archive files to R2."
+
+      - name: Verify R2 upload
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          CHANNEL="${{ steps.version.outputs.channel }}"
+
+          echo "=== Listing R2 wisclaw/${CHANNEL}/ ==="
+          aws s3 ls "s3://${R2_BUCKET}/WisClaw/${CHANNEL}/" \
+            --endpoint-url "${R2_ENDPOINT}"
+          echo ""
+          echo "R2 upload verified successfully!"
+
+  # ──────────────────────────────────────────────────────────────
   # Job: Finalize Release
   # Promotes the GitHub Release from pre-release to latest AFTER
   # both GitHub Release assets and OSS uploads are fully complete.
@@ -530,7 +679,7 @@ jobs:
   # all platform artifacts are ready.
   # ──────────────────────────────────────────────────────────────
   finalize:
-    needs: [publish, upload-bunny]
+    needs: [publish, upload-bunny, upload-r2]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
 
