@@ -428,7 +428,7 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           CHANNEL="${{ steps.version.outputs.channel }}"
-          BASE_URL="https://wisgate-files.juhedata.cloud/wisclaw/${CHANNEL}"
+          BASE_URL="https://file.wisgate.ai/WisClaw/${CHANNEL}"
 
           jq -n \
             --arg version "$VERSION" \

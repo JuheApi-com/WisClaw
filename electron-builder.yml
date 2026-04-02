@@ -55,10 +55,10 @@ npmRebuild: false
 # Fallback: GitHub Releases (backup, used when OSS is unavailable)
 publish:
   - provider: generic
-    url: https://wisgate-files.juhedata.cloud/wisclaw/latest
+    url: https://file.wisgate.ai/WisClaw/latest
     useMultipleRangeRequest: false
   - provider: github
-    owner: ValueCell-ai
+    owner: JuheApi-com
     repo: WisClaw
 
 # macOS Configuration
