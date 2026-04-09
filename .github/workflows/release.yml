@@ -82,21 +82,20 @@ jobs:
 
       # --publish never: prevent electron-builder from auto-publishing to GitHub.
       # All artifacts are collected and published atomically in the publish job.
-      - name: Verify macOS signing identity
+      - name: Validate macOS signing config
         if: matrix.platform == 'mac'
         env:
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
           CSC_NAME: ${{ secrets.MAC_CERTS_NAME }}
         run: |
-          echo "Available code-signing identities:"
-          security find-identity -v -p codesigning || true
-
-          required_identity="${CSC_NAME:-Developer ID Application}"
-          if ! security find-identity -v -p codesigning | grep -F "$required_identity" >/dev/null; then
-            echo "::error::Missing required signing identity: $required_identity"
-            echo "::error::Use a Developer ID Application certificate for release signing/notarization."
-            echo "::error::Set secrets MAC_CERTS (p12), MAC_CERTS_PASSWORD, and optionally MAC_CERTS_NAME."
+          if [ -z "$CSC_LINK" ] || [ -z "$CSC_KEY_PASSWORD" ]; then
+            echo "::error::Missing signing secrets. Please set MAC_CERTS (p12/base64) and MAC_CERTS_PASSWORD."
             exit 1
           fi
+          required_identity="${CSC_NAME:-Developer ID Application}"
+          echo "Signing identity hint: $required_identity"
+          echo "Note: keychain identities may be empty before electron-builder imports CSC_LINK."
 
       - name: Notary preflight check
         if: matrix.platform == 'mac'
@@ -167,6 +166,8 @@ jobs:
         run: |
           ulimit -n 65536
           echo "File descriptor limit: $(ulimit -n)"
+          export CSC_NAME="${CSC_NAME:-Developer ID Application}"
+          echo "Using CSC_NAME=$CSC_NAME"
           mkdir -p release/ci-logs
           max_attempts=3
           attempt=1
